@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,11 +7,50 @@ import {
   TextInput,
   TouchableOpacity,
   StatusBar,
+  Alert,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const Login = ({navigation}) => {
+  const [email, setEmail] = React.useState('hello');
+  const [password, setPassword] = React.useState();
+
+  const loginData = {
+    email: email,
+    password: password,
+  };
+
+  const login = async () => {
+    // navigation.navigate('Map');
+
+    console.log(JSON.stringify(loginData));
+
+    await fetch('https://carpull.herokuapp.com/driver/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData),
+    })
+      .then(res => res.json())
+      .then(result => {
+        Alert.alert('sucessfully send data');
+        console.log('Login===>', result.msg);
+        if (result.msg == 'user is not matching') {
+          Alert.alert(result.msg);
+        } else {
+          navigation.navigate('Map');
+        }
+      })
+      .catch(err => {
+        console.log('Error==>', err);
+      });
+  };
+  // fetch('https://carpull.herokuapp.com/driver')
+  //   .then(response => response.json())
+  //   .then(json => console.log(json));
   return (
     <>
       <ScrollView showsHorizontalScrollIndicator={false}>
@@ -22,26 +61,33 @@ const Login = ({navigation}) => {
             style={styles.logoImg}
           />
           <Text style={styles.htxt}>
-            Become a{' '}
-            <Text style={{color: 'green', fontSize: 25}}>Carpulling</Text>{' '}
+            Become a
+            <Text style={{color: 'green', fontSize: 25}}>Carpulling</Text>
             Partener
           </Text>
+          <Text>{email}</Text>
 
           <View style={styles.firstInput}>
             <Icon style={styles.iconSt} name="user" size={30} color={'black'} />
             <TextInput
               style={styles.inputField1}
               placeholder="Enter your Email"
+              onChangeText={value => setEmail(value)}
             />
             {/* <TextInput style={styles.inputField} placeholder="Last Name" /> */}
           </View>
           <View style={styles.firstInput}>
             <Icon style={styles.iconSt} name="key" size={30} color={'black'} />
 
-            <TextInput style={styles.inputField1} placeholder="Password" />
+            <TextInput
+              style={styles.inputField1}
+              placeholder="Password"
+              secureTextEntry={true}
+              onChangeText={value => setPassword(value)}
+            />
           </View>
           <View style={styles.bottomBtn}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={login}>
               <View style={styles.btn1}>
                 <Text style={styles.btntxt1}>Lgoin</Text>
               </View>
